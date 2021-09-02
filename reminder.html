@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel = "stylesheet" href = "https://www.w3schools.com/w3css/4/w3.css">
+    <link rel = "stylesheet" href = "./assests/css/reminder.css">
+    <title>Reminder</title>
+    <style>
+      .inline {
+        display: inline-block;
+      }
+    </style>
+  </head>
+
+  <body>
+
+    <h1>Set a reminder!</h1>
+
+    <form id ="add-form" onsubmit="">
+      <div class = "details" id = "grad">
+        <div class = "event">
+          <label for="event">Event</label> <br>
+          <input class = "w3-input w3-border w3-round" type="text" name="event" id="event"/>
+        </div>
+        <br />
+  
+        <div class = "time">
+          <label for="time">Date and time</label><br>
+          <input class = "w3-input w3-border w3-round" type="datetime-local" name="time" id="time"/>
+        </div>
+        <br />
+        <div class = "list">
+          <button type="button" class = "add" id="submit-button" onclick="addToList()">Add to list</button>
+          <a href = "login.html">Logout</a>   
+
+        </div>
+      </div><br>
+    
+    </form>
+    <br />
+
+    <table class="center" id="active-reminders" hidden="true">
+      <tr>
+        <th class = "tabletitle">Reminders</th>
+      </tr>
+    </table>
+
+    <script type="text/javascript">
+      const form =  document.getElementById("add-form");
+      const table = document.getElementById("active-reminders");
+      events = getEvents();
+      updateTable();
+
+      form.addEventListener("keypress", function(event) {
+        if (event.keyCode == 13) {
+          addToList();
+          event.preventDefault();
+          return false;
+        }
+      });
+
+      function addToList() {
+        pushNot();
+
+        var nameInput = document.getElementById("event");
+        var timeInput = document.getElementById("time");
+
+        var name = nameInput.value;
+        var time = timeInput.value;
+        if (name === "" || time === "") return false;
+
+        var toAdd = {
+          name: name,
+          time: time
+        };
+
+        form.reset();
+        
+        events.push(toAdd);
+        console.log(toAdd);
+
+        updateTable();
+        updateServer();
+      }
+
+      function removeFromList(index) {
+        console.log(index);
+        for (var i = 0; i < events.length-1; i++) {
+          if (i >= index) {
+            events[i] = events[i+1];
+            table.rows[i+1].childNodes[0].pos--;
+          }
+        }
+        events.pop();
+
+        updateTable();
+        updateServer();
+      }
+
+      function updateTable() {
+       while (table.rows.length > 1) {
+         table.deleteRow(1);
+       }
+
+       for (var i = 0; i < events.length; i++) {
+          var row = table.insertRow();
+          var remindSet = document.createElement("div");
+          var eventCol = document.createElement("div");
+          var timeCol = document.createElement("div");
+          var deleteBtn = document.createElement("button");
+          
+          eventCol.style.textAlign = "left";
+          eventCol.style.width = "40%";
+          timeCol.style.textAlign = "right";
+          timeCol.style.width = "40%";
+
+          deleteBtn.type = "button";
+          deleteBtn.style.width = "20%";
+
+          timeCol.className = "inline";
+          eventCol.className = "inline";
+          deleteBtn.className = "inline";
+
+          eventCol.innerHTML = events[i].name;
+          timeCol.innerHTML = events[i].time;
+          deleteBtn.innerHTML = "Remove";
+
+          remindSet.pos = i;
+          remindSet.appendChild(eventCol);
+          remindSet.appendChild(timeCol);
+          remindSet.appendChild(deleteBtn);
+          row.appendChild(remindSet);
+
+          deleteBtn.parent = remindSet;
+          deleteBtn.addEventListener("click", function(event) {
+            removeFromList(this.parentElement.pos);
+          });
+       }
+
+        if (events.length > 0) {
+          table.hidden = false;
+        } else {
+          table.hidden = true;
+        }
+      }
+
+      function getEvents() {
+        // TODO: Get events from database
+        return new Array();
+      }
+
+      function updateServer() {
+        // TODO: Send events to database
+      }
+    </script>
+
+    <script src="./assests/js/main.js"></script>
+  </body>
+</html>
